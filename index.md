@@ -8,7 +8,7 @@ nav_order: 1
 nav_exclude: true
 ---
 
-# The WGS QC and GVCF Pipeline
+# The WGS Nextflow Pipeline (QC and GVCF)
 {: .fs-6 }
 
 [Get started now]({{ site.baseurl }}{% link docs/getting-started.md %}){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 }
