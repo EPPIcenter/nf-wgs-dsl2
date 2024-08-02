@@ -1,0 +1,9 @@
+data/
+conf/nf-wgs-dsl2.sif
+refs/genomes
+**/.DS_Store
+*/.DS_Store
+.Rhistory
+.RData
+.DS_Store
+**/.Rhistory
