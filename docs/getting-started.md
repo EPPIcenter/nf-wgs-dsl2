@@ -49,7 +49,7 @@ If you are running the pipeline directly on Wynton, you can simply point to the 
 
 ## Reference Genome Files
 
-There are some reference genome files which are required for running the wgs nextflow pipeline. 
+There are reference genome files which are required for running the wgs nextflow pipeline. 
 
 If you clone the wgs nextflow pipeline repository from Github, you will need to separately download the reference genome files. You can copy these reference genome files from `/wynton/home/eppicenter/shared/WGS_pipeline_nextflow/refs/genomes`. Please store the `genomes` directory inside `refs` directory. 
 
