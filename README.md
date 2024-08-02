@@ -5,8 +5,7 @@ Adapted from:
 - https://github.com/Karaniare/Optimized_GATK4_pipeline (shell script)
 - https://github.com/jhoneycuttr/nf-wgs (Nextflow DSL 1)
 
-Documentation, please refer to: 
-https://eppicenter.github.io/nf-wgs-dsl2/
+**Documentation, please refer to: https://eppicenter.github.io/nf-wgs-dsl2/**
 
 ## Overview
 - `main.nf`: WGS workflow 
