@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Running QC only
-nav_order: 6
+nav_order: 7
 has_children: false
 ---
 
@@ -10,11 +10,9 @@ has_children: false
 To run QC only, add the --qc_only parameter
 ```
 nextflow run main.nf \
---qc_only \
--profile docker \
+-profile sge,apptainer \
 --inputdir path/input_directory_fastq \
 --outputdir path/output_directory \
---trimadapter path/adapters/TruSeq2-PE.fa 
+--qc_only true
 ```
-
 
