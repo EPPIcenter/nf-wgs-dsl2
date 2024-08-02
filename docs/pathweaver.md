@@ -16,7 +16,7 @@ To set up Pathweaver, copy the PathWeaver workflow from Arwen `/data/general/fin
 ## PathWeaver Input
 
 ### 1. Run Name
-The PathWeaver workflow will create a new subdirectory in the `pathweaver_run` directory with the given "Run Name" and output all results to that new subdirectory. 
+Given a string run name, the PathWeaver workflow will create a new subdirectory in the `pathweaver_run` directory with the given string and output all results to that new subdirectory. 
 
 ### 2. Bam Files Directory
 PathWeaver works with the QC outputs from `final_bams` directory: 
