@@ -14,7 +14,7 @@ You can refer to any of the example job scripts:
 - run_main_wynton.sh (shown below)
 - run_qc_wynton.sh
 
-**Note: If you set up the pipeline as option3 (Point to the Repository on Wynton:), it is important to define a suitable `-work-dir`**
+**Note: If you set up the pipeline as option3 (Point to the Repository on Wynton), it is important to define a suitable `-work-dir`**
 
 ```
 #!/bin/bash           # the shell language when run outside of the job scheduler
