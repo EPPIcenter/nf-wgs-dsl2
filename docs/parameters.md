@@ -7,27 +7,9 @@ has_children: false
 
 # Modifying Parameters
 
-## Overview
-- `main.nf`: WGS workflow 
-- `nextflow.config`: config file
-- `workflows` 
-  - `qc.nf`: QC sub-workflow 
-  - `gvcf.nf`: GVCF sub-workflow
-- `config`
-  - `Apptainer`: file used to build nf-wgs-dsl2.sif  
-  - `Dockerfile`: file for building docker image 
-  - `base.config`: base config file 
-  - `envs`: conda envs (under construction :construction:)
-- `refs`: reference files used by both `QC_workflow` and `gVCF_workflow`
-  - `adapters`: folder containing trimmomatic adapter files
-  - `genomes`: reference genome files and more
-  - `run_quality_report.Rmd`: r script for quality report used in `QC_workflow`
-- *`data`: suggested directory for input files*
-- *`results`: suggested directory for output*
+Parameters can be found in `nextflow.config` 
 
-## Parameters
 
-### nextflow.config
 |Parameters|Description|
 |---|---|
 |qc_only|If enabled, only QC workflow is run (default 'false')|
@@ -36,15 +18,9 @@ has_children: false
 |outputdir|The folder where you want the resulting data to be save (default 'results/results')|
 |trimadapter|The adapter used for initial trimming of reads (default 'NexteraPE-custom.fa')|
 
+
 The nextflow parameter `-profile` can be use to target the infrastructure you wish to run the pipeline on.
 
-#### Parameters in main.nf
-|Parameters|Description|
-|---|---|
-|refdir|Reference directory is assumed to be located here '$projectDir/refs/genomes'|
-|rscript|Rscript for run quality report is assumed to be located here "$projectDir/refs/run_quality_report.Rmd'|
-|reads|If running the pipeline starting from QC, inputdir is assumed to contain the raw reads fastq.gz files|
-|bams|If running the pipeline starting from gVCF, inputdir is assumed to contain the pf bam files and .csi index files|
 
 
 
