@@ -1,5 +1,5 @@
-# Plasmodium Falciparum WGS Pipeline 
-## (Nextflow DSL 2)
+# WGS Nextflow Pipeline 
+## (nf-wgs-dsl2)
 
 Adapted from: 
 - https://github.com/Karaniare/Optimized_GATK4_pipeline (shell script)
