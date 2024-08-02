@@ -11,10 +11,6 @@ nav_exclude: true
 # The WGS QC and GVCF Pipeline
 {: .fs-6 }
 
-[Get started now]({% link docs/getting-started.md %}){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 }
-
-To get started, please refer to the [getting started]({% link docs/getting-started.md  %}) page.
-
 [Get started now]({{ site.baseurl }}{% link docs/getting-started.md %}){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 }
 
 To get started, please refer to the [getting started]({{ site.baseurl }}{% link docs/getting-started.md %}) page.
