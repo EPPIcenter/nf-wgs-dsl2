@@ -58,7 +58,7 @@ Recommend running PathWeaver on Arwen using tmux. A log will print out as PathWe
 
 To generate plots for your pathweaver output 
 
-1. open the `generate_plots_2024_07_30.Rmd` in RStudio and edit the `run_dir` params to point to your run output directory: 
+1. open the `generate_plots_2024_07_30.Rmd` in RStudio and edit the `run_dir` params in the R notebook header (shown below) to the path of your PathWeaver run output directory. Then simply run the R notebook! Some adjustments may be needed for different analysis!
 
 ```
 ---
@@ -68,5 +68,3 @@ params:
   run_dir: "/home/me/pathweaver_run/test_run"
 ---
 ```
-
-2. simply run the `generate_plots_2024_07_30.Rmd` file. Some adjustments may be needed for different analysis!
