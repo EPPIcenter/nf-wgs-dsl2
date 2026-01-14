@@ -1,0 +1,35 @@
+{
+    "github.copilot.chat.commitMessageGeneration.instructions": [
+        {
+           "file": ".github/commit-instructions.md"
+        }
+    ],
+    "cSpell.enabled": true,
+    "cSpell.words": [
+        "plasmodium",
+        "falciparum",
+        "saterialea",
+        "babs",
+        "nemo",
+        "fastq", 
+        "whittog"
+     ],
+
+    "autoDocstring.docstringFormat": "google",
+
+    "notebook.formatOnSave.enabled": true,
+    "[python]": {
+        "editor.defaultFormatter": "charliermarsh.ruff",
+        "editor.formatOnPaste": false,
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.fixAll": "never",
+            "source.organizeImports": "explicit"
+        }
+    }
+
+    
+
+
+
+}
