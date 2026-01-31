@@ -93,7 +93,7 @@ process bwa_align {
     """
     bwa mem -t ${task.cpus} \
     -M -R "@RG\\tID:${pair_id}\\tLB:${pair_id}\\tPL:illumina\\tSM:${pair_id}\\tPU:${pair_id}" \
-    $genomes_dir/Pf3D7.fasta ${paired_reads} > ${pair_id}.sam
+    $genomes_dir/Pf3D7_human.fa ${paired_reads} > ${pair_id}.sam
     """
 }
 
@@ -114,7 +114,7 @@ process sam_convert {
     script:
     """
     gatk --java-options "-Xmx${task.memory.toGiga()}g -Xms${task.memory.toGiga()}g" SamFormatConverter \
-    -R $genomes_dir/Pf3D7.fasta \
+    -R $genomes_dir/Pf3D7_human.fa \
     -I ${sam_file} \
     -O ${pair_id}.bam
 
@@ -139,7 +139,7 @@ process sam_clean {
     script:
     """
     gatk --java-options "-Xmx${task.memory.toGiga()}g -Xms${task.memory.toGiga()}g" CleanSam \
-    -R $genomes_dir/Pf3D7.fasta \
+    -R $genomes_dir/Pf3D7_human.fa \
     -I ${bam_file} \
     -O ${pair_id}.clean.bam
 
@@ -170,7 +170,7 @@ process sam_sort {
 
     # sam file sorting
     gatk --java-options "-Xmx${task.memory.toGiga()}g -Xms${task.memory.toGiga()}g" SortSam \
-    -R $genomes_dir/Pf3D7.fasta \
+    -R $genomes_dir/Pf3D7_human.fa \
     -I ${clean_bam} \
     -O ${pair_id}.sorted.bam \
     -SO coordinate \
@@ -204,7 +204,7 @@ process sam_duplicates {
     mkdir -p TMP
 
     gatk --java-options "-Xmx${task.memory.toGiga()}g -Xms${task.memory.toGiga()}g" MarkDuplicates \
-    -R $genomes_dir/Pf3D7.fasta \
+    -R $genomes_dir/Pf3D7_human.fa \
     -I ${sorted_bam} \
     -O ${pair_id}.sorted.dup.bam \
     -M ${pair_id}_dup_metrics.txt \
@@ -561,9 +561,9 @@ workflow QC {
         bam_sort_ch = sam_sort(bam_clean_ch, params.genomes_dir)
         bam_dup_ch = sam_duplicates(bam_sort_ch, params.genomes_dir)
 
-        // samtools sorting Pf reads only (lab strains - no human contamination)
+        // samtools sorting Pf and human reads
         pf_bam_ch = target_pf(bam_dup_ch, params.genomes_dir)
-        // hs_bam_ch = target_human(bam_dup_ch, params.genomes_dir)
+        hs_bam_ch = target_human(bam_dup_ch, params.genomes_dir)
 
         // index pf bam
         index_pf_bam(pf_bam_ch) 
@@ -591,14 +591,14 @@ workflow QC {
         // Pf bam statistic summary
         pf_summary_ch = pf_stat_summary(pf_final_bamstat_ch.collect()) 
 
-        // Hs bam statistics by sample - SKIPPED for lab strains
-        // hs_bamstat_ch = hs_bam_stat_per_sample(hs_bam_ch)
-        // hs_final_bamstat_ch = hs_bamstat_ch.map{T->[T[1]]} // select *_bamstat_hs_final.tsv
+        // Hs bam statistics by sample
+        hs_bamstat_ch = hs_bam_stat_per_sample(hs_bam_ch)
+        hs_final_bamstat_ch = hs_bamstat_ch.map{T->[T[1]]} // select *_bamstat_hs_final.tsv
         // Hs bam statistic summary
-        // hs_summary_ch = hs_stat_summary(hs_final_bamstat_ch.collect())
+        hs_summary_ch = hs_stat_summary(hs_final_bamstat_ch.collect())
 
-        // Rmd run quality report generation - Pf only for lab strains
-        // run_report_and_calculate_ratio(pf_summary_ch, hs_summary_ch, coverage_summary_ch, insert1_ch.collect(), params.rscript)
+        // Rmd run quality report generation and Calculate Pf:Hs read ratio
+        run_report_and_calculate_ratio(pf_summary_ch, hs_summary_ch, coverage_summary_ch, insert1_ch.collect(), params.rscript)
         
     emit: pf_bam_ch
 
