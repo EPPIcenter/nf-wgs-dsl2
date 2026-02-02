@@ -44,9 +44,8 @@ process g_variant_calling {
 }
 
 
-workflow.onComplete { 
-    println ( workflow.success ? "\ngVCF run complete!": "Oops .. something went wrong" )
-}
+// Note: workflow.onComplete handlers removed to avoid confusion when other workflows run  
+// These global handlers execute for ANY workflow completion, not just gVCF
 
 workflow GVCF {
 

@@ -537,9 +537,8 @@ process run_report_and_calculate_ratio {
     """
 }
 
-workflow.onComplete { 
-    println ( workflow.success ? "\nQC run complete!": "Oops .. something went wrong" )
-}
+// Note: workflow.onComplete handlers removed to avoid confusion when other workflows run
+// These global handlers execute for ANY workflow completion, not just QC
 
 workflow QC {
     main: 
