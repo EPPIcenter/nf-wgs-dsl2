@@ -7,3 +7,4 @@ refs/genomes
 .RData
 .DS_Store
 **/.Rhistory
+.nextflow/
