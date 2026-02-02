@@ -133,12 +133,12 @@ process variant_recalibrator_snps {
     -R $genomes_dir/Pf3D7.fasta \
     -V ${snp_vcf} \
     ${resource_args} \
-    -an QD -an MQ -an MQRankSum -an ReadPosRankSum -an FS -an SOR \
+    -an QD -an FS -an SOR -an MQRankSum -an ReadPosRankSum \
     -mode SNP \
     -O snps_chr${chrom}.recal \
     --tranches-file snps_chr${chrom}.tranches \
     --rscript-file snps_chr${chrom}.plots.R \
-    --max-gaussians 4 \
+    --max-gaussians 8 \
     --trust-all-polymorphic
     """
 }
@@ -168,12 +168,12 @@ process variant_recalibrator_indels {
     -R $genomes_dir/Pf3D7.fasta \
     -V ${indel_vcf} \
     ${resource_args} \
-    -an QD -an MQRankSum -an ReadPosRankSum -an FS -an SOR \
+    -an QD -an FS -an SOR -an MQRankSum -an ReadPosRankSum \
     -mode INDEL \
     -O indels_chr${chrom}.recal \
     --tranches-file indels_chr${chrom}.tranches \
     --rscript-file indels_chr${chrom}.plots.R \
-    --max-gaussians 4 \
+    --max-gaussians 8 \
     --trust-all-polymorphic
     """
 }
@@ -201,7 +201,7 @@ process apply_vqsr_snps {
     --recal-file ${recal} \
     --tranches-file ${tranches} \
     -mode SNP \
-    --truth-sensitivity-filter-level ${params.vqsr_snp_filter_level} \
+    --lod-score-cutoff ${params.vqsr_snp_lod_cutoff} \
     -O snps_recal_chr${chrom}.vcf.gz
     """
 }
@@ -229,7 +229,7 @@ process apply_vqsr_indels {
     --recal-file ${recal} \
     --tranches-file ${tranches} \
     -mode INDEL \
-    --truth-sensitivity-filter-level ${params.vqsr_indel_filter_level} \
+    --lod-score-cutoff ${params.vqsr_indel_lod_cutoff} \
     -O indels_recal_chr${chrom}.vcf.gz
     """
 }
@@ -258,7 +258,7 @@ process merge_recalibrated_variants {
     """
 }
 
-// Optional: Concatenate all chromosomes into a single VCF
+// Concatenate all chromosomes into a single VCF
 process concat_chromosomes {
     
     tag "Concatenate all chromosomes"
@@ -278,6 +278,43 @@ process concat_chromosomes {
     """
     bcftools concat -O z -o recalibrated_all.vcf.gz ${vcf_list}
     bcftools index -t recalibrated_all.vcf.gz
+    """
+}
+
+// Convert VCF to zarr format using scikit-allel (Pf7 methods)
+process vcf_to_zarr {
+    
+    tag "Convert VCF to zarr format"
+    label 'big_mem'
+    
+    publishDir "${params.outputdir}/final_zarr", mode:'copy'
+       
+    input:
+    tuple path(vcf), path(vcf_index)
+
+    output:
+    path("recalibrated_all.zarr")
+
+    script:
+    """
+    #!/usr/bin/env python3
+    import allel
+    import zarr
+    import numcodecs
+    
+    # Read VCF and convert to zarr
+    # Following Pf7 methods: zarr v2.4.0 format using scikit-allel v1.2.1
+    allel.vcf_to_zarr(
+        '${vcf}',
+        'recalibrated_all.zarr',
+        group='.',
+        fields='*',
+        alt_number=7,
+        log=None,
+        compressor=numcodecs.Blosc(cname='zstd', clevel=1, shuffle=False)
+    )
+    
+    print("VCF successfully converted to zarr format")
     """
 }
 
@@ -338,11 +375,16 @@ workflow VQSR {
             params.genomes_dir
         )
         
-        // Optional: Concatenate all chromosomes
+        // Concatenate all chromosomes and convert to zarr
         if (params.concat_chromosomes) {
             all_vcfs = merged_ch.map { chrom, vcf, idx -> vcf }.collect()
             all_indices = merged_ch.map { chrom, vcf, idx -> idx }.collect()
             final_vcf_ch = concat_chromosomes(all_vcfs, all_indices)
+            
+            // Convert final VCF to zarr format (Pf7 methods)
+            if (params.output_zarr) {
+                zarr_ch = vcf_to_zarr(final_vcf_ch)
+            }
         }
 
     emit:
