@@ -195,19 +195,6 @@ process hard_filter {
         --exclude-filtered \\
         --set-filtered-gt-to-nocall \\
         --keep-original-ac \\
-        -O pass_variants_with_hets.vcf.gz
-    
-    # Filter for clonal samples: remove heterozygous calls and low AF variants
-    # Keep only near-homozygous variants (AF < 5% or AF > 95%)
-    # Using GATK SelectVariants with JEXL expressions
-    # Note: Using escaped quotes to properly pass JEXL expression
-    gatk SelectVariants \\
-        -R ${genomes_dir}/Pf3D7.fasta \\
-        -V pass_variants_with_hets.vcf.gz \\
-        --select-type-to-include SNP \\
-        --select-type-to-include INDEL \\
-        --select-type-to-include MIXED \\
-        --select "AF < 0.05 || AF > 0.95" \\
         -O filtered_pass_only.vcf.gz
     
     # Index the final VCF using GATK
@@ -218,10 +205,7 @@ process hard_filter {
     echo "Total variants before filtering:" >> filtering_stats.txt
     gatk CountVariants -V filtered_all_variants.vcf.gz >> filtering_stats.txt
     echo "" >> filtering_stats.txt
-    echo "PASS variants after site filters:" >> filtering_stats.txt
-    gatk CountVariants -V pass_variants_with_hets.vcf.gz >> filtering_stats.txt
-    echo "" >> filtering_stats.txt
-    echo "Final homozygous high-AF variants:" >> filtering_stats.txt
+    echo "PASS variants after all filters:" >> filtering_stats.txt
     gatk CountVariants -V filtered_pass_only.vcf.gz >> filtering_stats.txt
     """
 }
