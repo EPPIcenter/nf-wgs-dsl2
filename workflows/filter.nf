@@ -199,11 +199,19 @@ process hard_filter {
     
     # Filter for clonal samples: remove heterozygous calls and low AF variants
     # Keep only near-homozygous variants (AF < 5% or AF > 95%)
-    bcftools view -i 'GT="0/0" || GT="1/1" || GT="./."' pass_variants_with_hets.vcf.gz | \\
-    bcftools view -i 'INFO/AF < 0.05 || INFO/AF > 0.95' -O z -o filtered_pass_only.vcf.gz
+    # Using GATK SelectVariants with JEXL expressions
+    # Note: Using escaped quotes to properly pass JEXL expression
+    gatk SelectVariants \\
+        -R ${genomes_dir}/Pf3D7.fasta \\
+        -V pass_variants_with_hets.vcf.gz \\
+        --select-type-to-include SNP \\
+        --select-type-to-include INDEL \\
+        --select-type-to-include MIXED \\
+        --select "AF < 0.05 || AF > 0.95" \\
+        -O filtered_pass_only.vcf.gz
     
-    # Index the final VCF
-    bcftools index -t filtered_pass_only.vcf.gz
+    # Index the final VCF using GATK
+    gatk IndexFeatureFile -I filtered_pass_only.vcf.gz
     
     # Generate filtering statistics using GATK tools
     echo "=== Filtering Statistics ===" > filtering_stats.txt
