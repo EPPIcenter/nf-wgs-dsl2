@@ -114,6 +114,10 @@ process joint_genotype {
         -R ${genomes_dir}/Pf3D7.fasta \\
         -V gendb://${genomicsdb} \\
         -L ${genomes_dir}/core_chr${chrom}.list \\
+        -G StandardAnnotation \\
+        -G AS_StandardAnnotation \\
+        -A ExcessHet \\
+        -A InbreedingCoeff \\
         -O joint_chr${chrom}.vcf.gz
     """
 }
@@ -180,10 +184,12 @@ process hard_filter {
         --filter-name "SOR_filter" --filter-expression "SOR > 3.0"
     
     # Extract only PASS variants using GATK SelectVariants
+    # Keep all annotations including AD (Allele Depth)
     gatk SelectVariants \\
         -R ${genomes_dir}/Pf3D7.fasta \\
         -V filtered_all_variants.vcf.gz \\
         --exclude-filtered \\
+        --keep-original-ac \\
         -O filtered_pass_only.vcf.gz
     
     # Generate filtering statistics using GATK tools
