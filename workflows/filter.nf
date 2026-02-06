@@ -171,7 +171,8 @@ process hard_filter {
     script:
     """
     # Apply hard filters using GATK VariantFiltration
-    # These thresholds are appropriate for detecting mutations in lab strains
+    # Site-level filters for technical artifacts
+    # Genotype-level filters for quality and clonal samples (heterozygous = artifact)
     gatk --java-options "-Xmx${task.memory.toGiga()}g" VariantFiltration \\
         -R ${genomes_dir}/Pf3D7.fasta \\
         -V ${vcf} \\
@@ -181,23 +182,38 @@ process hard_filter {
         --filter-name "MQ_filter" --filter-expression "MQ < 40.0" \\
         --filter-name "MQRankSum_filter" --filter-expression "MQRankSum < -12.5" \\
         --filter-name "ReadPosRankSum_filter" --filter-expression "ReadPosRankSum < -8.0" \\
-        --filter-name "SOR_filter" --filter-expression "SOR > 3.0"
+        --filter-name "SOR_filter" --filter-expression "SOR > 3.0" \\
+        --genotype-filter-name "GQ_filter" --genotype-filter-expression "GQ < 20" \\
+        --genotype-filter-name "DP_filter" --genotype-filter-expression "DP < 10" \\
+        --genotype-filter-name "AD_filter" --genotype-filter-expression "AD[1] < 3"
     
-    # Extract only PASS variants using GATK SelectVariants
+    # Extract only PASS variants (site and genotype filters)
     # Keep all annotations including AD (Allele Depth)
     gatk SelectVariants \\
         -R ${genomes_dir}/Pf3D7.fasta \\
         -V filtered_all_variants.vcf.gz \\
         --exclude-filtered \\
+        --set-filtered-gt-to-nocall \\
         --keep-original-ac \\
-        -O filtered_pass_only.vcf.gz
+        -O pass_variants_with_hets.vcf.gz
+    
+    # Filter for clonal samples: remove heterozygous calls and low AF variants
+    # Keep only near-homozygous variants (AF < 5% or AF > 95%)
+    bcftools view -i 'GT="0/0" || GT="1/1" || GT="./."' pass_variants_with_hets.vcf.gz | \\
+    bcftools view -i 'INFO/AF < 0.05 || INFO/AF > 0.95' -O z -o filtered_pass_only.vcf.gz
+    
+    # Index the final VCF
+    bcftools index -t filtered_pass_only.vcf.gz
     
     # Generate filtering statistics using GATK tools
     echo "=== Filtering Statistics ===" > filtering_stats.txt
     echo "Total variants before filtering:" >> filtering_stats.txt
     gatk CountVariants -V filtered_all_variants.vcf.gz >> filtering_stats.txt
     echo "" >> filtering_stats.txt
-    echo "PASS variants after filtering:" >> filtering_stats.txt
+    echo "PASS variants after site filters:" >> filtering_stats.txt
+    gatk CountVariants -V pass_variants_with_hets.vcf.gz >> filtering_stats.txt
+    echo "" >> filtering_stats.txt
+    echo "Final homozygous high-AF variants:" >> filtering_stats.txt
     gatk CountVariants -V filtered_pass_only.vcf.gz >> filtering_stats.txt
     """
 }
