@@ -113,8 +113,7 @@ process joint_genotype {
     gatk --java-options "-Xmx${task.memory.toGiga()}g" GenotypeGVCFs \\
         -R ${genomes_dir}/Pf3D7.fasta \\
         -V gendb://${genomicsdb} \\
-        -L ${genomes_dir}/core_chr${chrom}.list \\
-        -G StandardAnnotation \\
+        -L ${genomes_dir}/core_chr${chrom}.list \\        -ploidy 1 \        -G StandardAnnotation \\
         -G AS_StandardAnnotation \\
         -A ExcessHet \\
         -A InbreedingCoeff \\
@@ -173,19 +172,23 @@ process hard_filter {
     # Apply hard filters using GATK VariantFiltration
     # Site-level filters for technical artifacts
     # Genotype-level filters for quality and clonal samples (heterozygous = artifact)
+    script:
+    """
     gatk --java-options "-Xmx${task.memory.toGiga()}g" VariantFiltration \\
         -R ${genomes_dir}/Pf3D7.fasta \\
         -V ${vcf} \\
         -O filtered_all_variants.vcf.gz \\
-        --filter-name "QD_filter" --filter-expression "QD < 2.0" \\
-        --filter-name "FS_filter" --filter-expression "FS > 60.0" \\
-        --filter-name "MQ_filter" --filter-expression "MQ < 40.0" \\
-        --filter-name "MQRankSum_filter" --filter-expression "MQRankSum < -12.5" \\
-        --filter-name "ReadPosRankSum_filter" --filter-expression "ReadPosRankSum < -8.0" \\
-        --filter-name "SOR_filter" --filter-expression "SOR > 3.0" \\
-        --genotype-filter-name "GQ_filter" --genotype-filter-expression "GQ < 20" \\
-        --genotype-filter-name "DP_filter" --genotype-filter-expression "DP < 10" \\
-        --genotype-filter-name "AD_filter" --genotype-filter-expression "AD[1] < 3"
+        --filter-name "QD_filter"           --filter-expression "QD < ${params.filter_QD}" \\
+        --filter-name "FS_filter"           --filter-expression "FS > ${params.filter_FS}" \\
+        --filter-name "MQ_filter"           --filter-expression "MQ < ${params.filter_MQ}" \\
+        --filter-name "MQRankSum_filter"    --filter-expression "MQRankSum < ${params.filter_MQRankSum}" \\
+        --filter-name "ReadPosRankSum_filter" --filter-expression "ReadPosRankSum < ${params.filter_ReadPosRankSum}" \\
+        --filter-name "SOR_filter"          --filter-expression "SOR > ${params.filter_SOR}" \\
+        --genotype-filter-name "GQ_filter"  --genotype-filter-expression "GQ < ${params.filter_GQ}" \\
+        --genotype-filter-name "DP_filter"  --genotype-filter-expression "DP < ${params.filter_DP}" \\
+        --genotype-filter-name "AD_filter"  --genotype-filter-expression "AD[1] < ${params.filter_AD}"
+    ...
+    """
     
     # Extract only PASS variants (site and genotype filters)
     # Keep all annotations including AD (Allele Depth)
