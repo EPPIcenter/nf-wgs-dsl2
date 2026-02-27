@@ -113,7 +113,9 @@ process joint_genotype {
     gatk --java-options "-Xmx${task.memory.toGiga()}g" GenotypeGVCFs \\
         -R ${genomes_dir}/Pf3D7.fasta \\
         -V gendb://${genomicsdb} \\
-        -L ${genomes_dir}/core_chr${chrom}.list \\        -ploidy 1 \        -G StandardAnnotation \\
+        -L ${genomes_dir}/core_chr${chrom}.list \\
+        -ploidy 1 \\
+        -G StandardAnnotation \\
         -G AS_StandardAnnotation \\
         -A ExcessHet \\
         -A InbreedingCoeff \\
@@ -172,8 +174,6 @@ process hard_filter {
     # Apply hard filters using GATK VariantFiltration
     # Site-level filters for technical artifacts
     # Genotype-level filters for quality and clonal samples (heterozygous = artifact)
-    script:
-    """
     gatk --java-options "-Xmx${task.memory.toGiga()}g" VariantFiltration \\
         -R ${genomes_dir}/Pf3D7.fasta \\
         -V ${vcf} \\
@@ -187,8 +187,7 @@ process hard_filter {
         --genotype-filter-name "GQ_filter"  --genotype-filter-expression "GQ < ${params.filter_GQ}" \\
         --genotype-filter-name "DP_filter"  --genotype-filter-expression "DP < ${params.filter_DP}" \\
         --genotype-filter-name "AD_filter"  --genotype-filter-expression "AD[1] < ${params.filter_AD}"
-    ...
-    """
+    
     
     # Extract only PASS variants (site and genotype filters)
     # Keep all annotations including AD (Allele Depth)
