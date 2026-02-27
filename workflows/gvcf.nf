@@ -24,7 +24,7 @@ process g_variant_calling {
     -R $genomes_dir/Pf3D7.fasta \
     -I ${pf_bam} \
     -ERC GVCF \
-    -ploidy 2 \
+    -ploidy 1 \
     --native-pair-hmm-threads 16 \
     -O ${pair_id}.chr${chrom}.g.vcf \
     --assembly-region-padding 100 \
