@@ -9,7 +9,7 @@
 #SBATCH --partition=ncpu
 
 # Full pipeline execution: QC -> gVCF -> Filtering
-# Results saved to: outpit/dir
+# Results saved to: output/dir
 
 # Set Nextflow options
 export NXF_OPTS='-Xms1g -Xmx4g'
