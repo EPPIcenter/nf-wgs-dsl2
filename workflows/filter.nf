@@ -114,7 +114,7 @@ process joint_genotype {
         -R ${genomes_dir}/Pf3D7.fasta \\
         -V gendb://${genomicsdb} \\
         -L ${genomes_dir}/core_chr${chrom}.list \\
-        -ploidy 1 \\
+        -ploidy ${params.ploidy} \
         -G StandardAnnotation \\
         -G AS_StandardAnnotation \\
         -A ExcessHet \\
