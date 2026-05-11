@@ -19,6 +19,7 @@ trim_adapter    : $params.trim_adapter
 genomes_dir     : $params.genomes_dir
 output_zarr     : $params.output_zarr
 sif_path        : $params.sif_path
+ploidy          : $params.ploidy
 """
 
 // workflows 
